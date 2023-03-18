@@ -1,0 +1,53 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ${APP_NAME}
+  namespace: ${APP_NAMESPACE}
+  labels:
+    app: ${APP_NAME}
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: ${APP_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${APP_NAME}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - ${APP_NAME}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: ${APP_NAME}
+          image: ${IMAGE}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /price
+              port: 8000 
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 6
+            failureThreshold: 2
+          resources:
+            limits:
+              memory: ${LIMITE_NODE_MEMORIA}
+              cpu: ${LIMITE_NODE_CPU}
+            requests:
+              memory: ${REQUEST_NODE_MEMORIA}
+              cpu: ${REQUEST_NODE_CPU}
