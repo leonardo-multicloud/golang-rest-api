@@ -34,6 +34,10 @@ while IFS= read -r line; do
   echo "$line" | envsubst
 done < .ci/ingress.yml > .ci/k8s-ingress.yml
 
+while IFS= read -r line; do
+  echo "$line" | envsubst
+done < .ci/hpa.yml > .ci/k8s-hpa.yml
+
 awk 'FNR==1 && NR!=1 {printf "---\n"}{print}' .ci/k8s-*.yml > .ci/apply.yaml
 
 echo "*** Removendo arquivos temporário ***"

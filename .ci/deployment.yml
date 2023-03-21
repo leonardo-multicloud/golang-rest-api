@@ -6,7 +6,7 @@ metadata:
   labels:
     app: ${APP_NAME}
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     rollingUpdate:
       maxSurge: 2
@@ -21,7 +21,7 @@ spec:
         app: ${APP_NAME}
     spec:
       affinity:
-        podAntiAffinity:
+        podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
@@ -40,9 +40,16 @@ spec:
             httpGet:
               path: /price
               port: 8000 
-            initialDelaySeconds: 20
+            initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 6
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /price
+              port: 8000 
+            initialDelaySeconds: 20
+            periodSeconds: 3
             failureThreshold: 2
           resources:
             limits:
